@@ -352,7 +352,7 @@ class UtilsBoardTest(TestCase):
              [None, None, None, None, None]]
         )
         res = board.apply_action(FLAG, 1, 2)
-        self.assertEqual(res, False)
+        self.assertEqual(res, True)
         self.assertEqual(
             board.state,
             [[None, None, 1, 1, 0],

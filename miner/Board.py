@@ -114,6 +114,7 @@ class Board(object):
             return False
         cell_value = self.board[x][y]
         if cell_value == 9:
+            self.state[x][y] = True
             self.lost = True
             self.boomed = (x, y)
             return True

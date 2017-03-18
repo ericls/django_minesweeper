@@ -1,4 +1,5 @@
 import json
+import copy
 from django.db import models
 from miner.Board import Board, CLICK, DOUBLE_CLICK, FLAG
 
@@ -11,7 +12,12 @@ class Game(models.Model):
 
     def apply_action(self, action_type, x, y):
         # TODO: Check if the action can be applied
-        GameAction.objects.create(game_id=self.id, action_type=action_type, x=x, y=y)
+        board = self._current_board
+        current_state = copy.deepcopy(board.state)
+        board.apply_action(action_type, x, y)
+        if not board.state == current_state:
+            GameAction.objects.create(game_id=self.id, action_type=action_type, x=x, y=y)
+        return
 
     def go_back(self):
         last_action = self.actions.order_by('id').last()
@@ -20,10 +26,7 @@ class Game(models.Model):
 
     @property
     def latest_state(self):
-        actions = self.actions.order_by('id').all()
-        board = Board(json.loads(self.board))
-        for action in actions:
-            board.apply_action(action.action_type, action.x, action.y)
+        board = self._current_board
         return {
             "state": board.state,
             "win": board.win,
@@ -31,6 +34,14 @@ class Game(models.Model):
             "boomed": board.boomed,
             "minesLeft": board.mines_left,
         }
+
+    @property
+    def _current_board(self):
+        actions = self.actions.order_by('id').all()
+        board = Board(json.loads(self.board))
+        for action in actions:
+            board.apply_action(action.action_type, action.x, action.y)
+        return board
 
 
 class GameAction(models.Model):
