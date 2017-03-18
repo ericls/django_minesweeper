@@ -25,7 +25,6 @@ const GameBoard = (props) => {
                 win: data.win,
                 lost: data.lost,
                 gameState: data.state,
-                boomed: data.boomed,
                 minesLeft: data.minesLeft,
             });
         })
@@ -42,7 +41,6 @@ const GameBoard = (props) => {
                 win: data.win,
                 lost: data.lost,
                 gameState: data.state,
-                boomed: data.boomed,
                 minesLeft: data.minesLeft,
             });
         })
@@ -83,7 +81,7 @@ const GameBoard = (props) => {
                                 key={location}
                                 value={item}
                                 location={[x, y]}
-                                boomed={boomed && x === boomed[0] && y === boomed[1]}
+                                boomed={item === true}
                             />
                         )
                     })
@@ -150,7 +148,6 @@ const GameBoard = (props) => {
                         setGameState({
                             gameId: 0,
                             gameState: [],
-                            boomed: null,
                             win: false,
                             lost: false,
                             minesLeft: 0,
@@ -167,10 +164,6 @@ GameBoard.propTypes = {
     gameState: React.PropTypes.array,
     win: React.PropTypes.bool,
     lost: React.PropTypes.bool,
-    boomed: React.PropTypes.oneOfType([
-        React.PropTypes.array,
-        null
-    ])
 };
 
 GameBoard.defaultProps = {

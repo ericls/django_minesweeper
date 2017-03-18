@@ -28,7 +28,6 @@ class Board(object):
         self.state = [[None for _ in range(col)] for _ in range(row)]
         self.win = False
         self.lost = False
-        self.boomed = None
         self.flag_count = 0
         self.coordinates = [(i, j) for j in range(col) for i in range(row)]
 
@@ -116,7 +115,6 @@ class Board(object):
         if cell_value == 9:
             self.state[x][y] = True
             self.lost = True
-            self.boomed = (x, y)
             return True
         if 0 < cell_value < 9:
             self.state[x][y] = cell_value

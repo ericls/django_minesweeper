@@ -37,7 +37,7 @@ const Cell = (props) => {
         return <span style={{color: getColor(value)}}>{value}</span>
     };
     const getStyle = (value) => {
-        if (value === null || value === 9) {
+        if (value === null || value === 9 || boomed) {
             return {
                 backgroundColor: "#888",
             }
@@ -59,7 +59,10 @@ const Cell = (props) => {
 
 Cell.propTypes = {
     location: React.PropTypes.array.isRequired,
-    value: React.PropTypes.number,
+    value: React.PropTypes.oneOfType([
+        React.PropTypes.number,
+        React.PropTypes.bool
+    ]),
     onClick: React.PropTypes.func,
     onRightClick: React.PropTypes.func,
     onDoubleClick: React.PropTypes.func,

@@ -31,7 +31,6 @@ class Game(models.Model):
             "state": board.state,
             "win": board.win,
             "lost": board.lost,
-            "boomed": board.boomed,
             "minesLeft": board.mines_left,
         }
 

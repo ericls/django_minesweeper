@@ -7,7 +7,6 @@ class App extends React.Component {
         super(props);
         this.state = {
             gameState: [],
-            boomed: null,
             gameId: 0,
             win: false,
             lost: false,
@@ -58,7 +57,6 @@ class App extends React.Component {
                     lost: data.lost,
                     gameState: data.state,
                     gameId: initialId,
-                    boomed: data.boomed,
                     minesLeft: data.minesLeft,
                 });
             })
