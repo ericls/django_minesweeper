@@ -7,8 +7,11 @@ const DOUBLE_CLICK = 1;
 const FLAG = 2;
 
 const GameBoard = (props) => {
-    const {gameState, win, lost, setGameState, gameId, boomed, minesLeft} = props;
+    const {gameState, win, lost, setGameState, gameId, minesLeft} = props;
     const sendAction = (action_type, x, y) => {
+        if (window.socket) {
+            window.socket.send(window.gameClientId);
+        }
         $.ajax({
             method: 'POST',
             url: `/api/game/${gameId}/action/`,

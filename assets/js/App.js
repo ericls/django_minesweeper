@@ -1,6 +1,7 @@
 import React from 'react';
 import $ from 'jquery';
 import GameBoard from './GameBoard';
+import { guid } from './utils';
 
 class App extends React.Component {
     constructor(props) {
@@ -17,6 +18,24 @@ class App extends React.Component {
         };
         this.setGameState = (newState) => {
             this.setState(newState)
+        };
+        this.syncGameInfo = (gameId) => {
+            gameId = gameId || this.state.gameId;
+            $.ajax({
+                method: 'GET',
+                url: `/api/game/${gameId}`,
+                dataType: 'json',
+            })
+            .done((data) => {
+                this.setState({
+                    win: data.win,
+                    lost: data.lost,
+                    gameState: data.state,
+                    gameId: gameId,
+                    minesLeft: data.minesLeft,
+                });
+            })
+            .catch((err) => {console.log(err)});
         };
         this.newGame = () => {
             const { numOfMines, x, y} = this.state;
@@ -40,27 +59,30 @@ class App extends React.Component {
                 window.history.pushState('page', 'title', `/game/${data.gameId}`);
             })
             .catch((err) => {console.log(err)});
+        };
+        this.connectGameChannel = (gameId) => {
+            if (WebSocket) {
+                window.gameClientId = guid();
+                window.socket = new WebSocket("ws://" + window.location.host + "/" + gameId +"/");
+                socket.onmessage = (e) => {
+                    if (e.data !== window.gameClientId) {
+                        this.syncGameInfo();
+                    }
+                };
+            }
+        };
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        if (nextState.gameId && nextState.gameId !== this.state.gameId) {
+            return this.connectGameChannel(nextState.gameId);
         }
     }
 
     componentDidMount() {
         const initialId = window.initialGameId;
         if (initialId) {
-            $.ajax({
-                method: 'GET',
-                url: `/api/game/${initialId}`,
-                dataType: 'json',
-            })
-            .done((data) => {
-                this.setState({
-                    win: data.win,
-                    lost: data.lost,
-                    gameState: data.state,
-                    gameId: initialId,
-                    minesLeft: data.minesLeft,
-                });
-            })
-            .catch((err) => {console.log(err)});
+            this.syncGameInfo(initialId);
         }
     }
 
