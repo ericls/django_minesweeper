@@ -7,9 +7,11 @@ class App extends React.Component {
         super(props);
         this.state = {
             gameState: [],
+            boomed: null,
             gameId: 0,
             win: false,
             lost: false,
+            minesLeft: 0,
             numOfMines: '10',
             x: '10',
             y: '10',
@@ -34,6 +36,7 @@ class App extends React.Component {
                 this.setState({
                     gameState: data.state,
                     gameId: data.gameId,
+                    minesLeft: data.minesLeft,
                 });
                 window.history.pushState('page', 'title', `/game/${data.gameId}`);
             })
@@ -55,6 +58,8 @@ class App extends React.Component {
                     lost: data.lost,
                     gameState: data.state,
                     gameId: initialId,
+                    boomed: data.boomed,
+                    minesLeft: data.minesLeft,
                 });
             })
             .catch((err) => {console.log(err)});
@@ -103,10 +108,7 @@ class App extends React.Component {
             <div>
                 <GameBoard
                     setGameState={this.setGameState}
-                    gameState={this.state.gameState}
-                    win={this.state.win}
-                    lost={this.state.lost}
-                    gameId={this.state.gameId}
+                    {...this.state}
                 />
             </div>
         )

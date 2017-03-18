@@ -7,7 +7,7 @@ const DOUBLE_CLICK = 1;
 const FLAG = 2;
 
 const GameBoard = (props) => {
-    const {gameState, win, lost, setGameState, gameId} = props;
+    const {gameState, win, lost, setGameState, gameId, boomed, minesLeft} = props;
     const sendAction = (action_type, x, y) => {
         $.ajax({
             method: 'POST',
@@ -25,6 +25,8 @@ const GameBoard = (props) => {
                 win: data.win,
                 lost: data.lost,
                 gameState: data.state,
+                boomed: data.boomed,
+                minesLeft: data.minesLeft,
             });
         })
         .catch((err) => {console.log(err)});
@@ -40,6 +42,8 @@ const GameBoard = (props) => {
                 win: data.win,
                 lost: data.lost,
                 gameState: data.state,
+                boomed: data.boomed,
+                minesLeft: data.minesLeft,
             });
         })
         .catch((err) => {console.log(err)});
@@ -79,6 +83,7 @@ const GameBoard = (props) => {
                                 key={location}
                                 value={item}
                                 location={[x, y]}
+                                boomed={boomed && x === boomed[0] && y === boomed[1]}
                             />
                         )
                     })
@@ -89,22 +94,41 @@ const GameBoard = (props) => {
     const notification = (() => {
         if (win) {
             return (
-                <span className="success">You win</span>
+                <div
+                    className="notification" style={{
+                    backgroundColor: "rgba(80, 131, 76, 0.8)"
+                }}
+                >
+                    You Win
+                </div>
             )
         }
         if (lost) {
             return (
-                <span className="success">You Lost</span>
+                <div
+                    className="notification" style={{
+                    backgroundColor: "rgba(131, 76, 80, 0.8)"
+                }}
+                >
+                    You Lost
+                </div>
             )
         }
-        return null;
+        return (
+            <div
+                className="notification" style={{
+                backgroundColor: "rgba(76, 80, 131, 0.8)"
+            }}
+            >
+                Django Mine Sweeper
+            </div>
+        );
     })();
     return(
         <div>
-            <div className="notification">
-                {notification}
-            </div>
+            {notification}
             <div className="stats">
+                Mines Left: {minesLeft}
             </div>
             <div
                 className="game-board"
@@ -119,6 +143,22 @@ const GameBoard = (props) => {
             <div className="actions">
                 <a className="button" onClick={undo}>Undo</a>
             </div>
+            <div className="actions">
+                <a
+                    className="button"
+                    onClick={() => {
+                        setGameState({
+                            gameId: 0,
+                            gameState: [],
+                            boomed: null,
+                            win: false,
+                            lost: false,
+                            minesLeft: 0,
+                        });
+                        window.history.replaceState('page', 'title', '/')
+                    }}
+                >New Game</a>
+            </div>
         </div>
     )
 };
@@ -127,6 +167,10 @@ GameBoard.propTypes = {
     gameState: React.PropTypes.array,
     win: React.PropTypes.bool,
     lost: React.PropTypes.bool,
+    boomed: React.PropTypes.oneOfType([
+        React.PropTypes.array,
+        null
+    ])
 };
 
 GameBoard.defaultProps = {

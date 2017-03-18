@@ -28,6 +28,8 @@ class Board(object):
         self.state = [[None for _ in range(col)] for _ in range(row)]
         self.win = False
         self.lost = False
+        self.boomed = None
+        self.flag_count = 0
         self.coordinates = [(i, j) for j in range(col) for i in range(row)]
 
     @classmethod
@@ -47,6 +49,12 @@ class Board(object):
         board.plant(num_of_mines, seed)
         board.mark()
         return board
+
+    @property
+    def mines_left(self):
+        num_of_flags = [item for sublist in self.state for item in sublist].count(9)
+        num_of_mines = [item for sublist in self.board for item in sublist].count(9)
+        return num_of_mines - num_of_flags
 
     def apply_action(self, t, x, y):
         """
@@ -107,6 +115,7 @@ class Board(object):
         cell_value = self.board[x][y]
         if cell_value == 9:
             self.lost = True
+            self.boomed = (x, y)
             return True
         if 0 < cell_value < 9:
             self.state[x][y] = cell_value
@@ -153,8 +162,10 @@ class Board(object):
         """
         if self.state[x][y] == 9:
             self.state[x][y] = None
-            return False
+            return True
         if self.state[x][y]:
+            return False
+        if not self.mines_left > 0:
             return False
         self.state[x][y] = 9
         return True
