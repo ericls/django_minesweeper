@@ -1,10 +1,61 @@
 import json
 import random
-from django.test import TestCase
-from miner.models import Game, GameAction
+import logging
+from django.test import TestCase, Client
+from miner.models import Game
 from miner.Board import Board, CLICK, DOUBLE_CLICK, FLAG
 
+logging.disable(logging.CRITICAL)
 CLICK_TYPE, DOUBLE_CLICK_TYPE, FLAG_TYPE = 0, 1, 2
+
+
+# Test miner.view.create_game
+class CreateGameViewTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+    def testCreateGame(self):
+        res = self.client.post(
+            "/create/",
+            json.dumps(dict(
+                numOfMines=10,
+                size=[10, 20]
+            )),
+            content_type="application/json"
+        )
+        self.assertEqual(res.status_code, 201)
+        body = json.loads(res.content.decode("utf-8"))
+        self.assertTrue("gameId" in body)
+
+    def testShouldNotAllowGet(self):
+        res = self.client.get("/create/")
+        self.assertEqual(res.status_code, 405)
+
+    def testShouldNotCreateGameWithoutRequiredData(self):
+        res = self.client.post(
+            "/create/",
+            json.dumps(dict(
+                numOfMines=10
+            )),
+            content_type="application/json"
+        )
+        self.assertEqual(res.status_code, 400)
+
+    def testShouldNotCreateGameWithBadJson(self):
+        res = self.client.post(
+            "/create/",
+            "[{\"a\": b}]",
+            content_type="application/json"
+        )
+        self.assertEqual(res.status_code, 400)
+
+    def testShouldNotAllowNoneJson(self):
+        res = self.client.post(
+            "/create/",
+            {"a": 1, "b": 2},
+        )
+        self.assertEqual(res.status_code, 415)
 
 
 # Test miner.models.Game

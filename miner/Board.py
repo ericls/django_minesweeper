@@ -43,10 +43,10 @@ class Board(object):
         num_of_cells = row * col
         if num_of_cells <= num_of_mines:
             raise ValueError('Number of cells should be greater than number of mines')
-        empty_board = cls([[0 for _ in range(col)] for _ in range(row)])
-        empty_board.plant(num_of_mines, seed)
-        empty_board.mark()
-        return empty_board
+        board = cls([[0 for _ in range(col)] for _ in range(row)])
+        board.plant(num_of_mines, seed)
+        board.mark()
+        return board
 
     def apply_action(self, t, x, y):
         """
