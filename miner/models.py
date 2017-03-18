@@ -1,13 +1,17 @@
 import json
 from django.db import models
-from miner.utils import Board, GameActionTypes
+from miner.Board import Board, CLICK, DOUBLE_CLICK, FLAG
 
 
 class Game(models.Model):
 
     board = models.TextField()
 
-    def back(self):
+    def apply_action(self, action_type, x, y):
+        # TODO: Check if the action can be applied
+        GameAction.objects.create(game_id=self.id, action_type=action_type, x=x, y=y)
+
+    def go_back(self):
         last_action = self.actions.order_by('id').last()
         if last_action:
             last_action.delete()
@@ -17,15 +21,16 @@ class Game(models.Model):
         actions = self.actions.order_by('id').all()
         board = Board(json.loads(self.board))
         for action in actions:
-            board.apply_action(GameActionTypes[action.action_type], action.x, action.y)
+            board.apply_action(action.action_type, action.x, action.y)
         return board.state
 
 
 class GameAction(models.Model):
 
-    ACTION_TYPES = map(
-        lambda i: (i, GameActionTypes[i]),
-        range(len(GameActionTypes))
+    ACTION_TYPES = (
+        (CLICK, "CLICK"),
+        (DOUBLE_CLICK, "DOUBLE_CLICK"),
+        (FLAG, "FLAG")
     )
 
     game = models.ForeignKey(Game, related_name="actions")

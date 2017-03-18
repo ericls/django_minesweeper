@@ -2,9 +2,9 @@
 import random
 import itertools
 
-CLICK = "CLICK"
-DOUBLE_CLICK = "DOUBLE_CLICK"
-FLAG = "FLAG"
+CLICK = 0
+DOUBLE_CLICK = 1
+FLAG = 2
 
 GameActionTypes = [
     CLICK,
