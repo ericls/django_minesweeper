@@ -34,7 +34,7 @@ const Cell = (props) => {
       return <span style={{color: getColor(value)}}>{value}</span>
     };
     const getStyle = (value) => {
-        if (value === null) {
+        if (value === null || value === 9) {
             return {
                 backgroundColor: "#888",
             }
@@ -47,6 +47,7 @@ const Cell = (props) => {
             onDoubleClick={value ? props.onDoubleClick : () => {}}
             className="cell"
             style={getStyle(value)}
+            onContextMenu={props.onRightClick}
         >
             {getDisplayValue(value)}
         </div>
@@ -57,6 +58,7 @@ Cell.propTypes = {
     location: React.PropTypes.array.isRequired,
     value: React.PropTypes.number,
     onClick: React.PropTypes.func,
+    onRightClick: React.PropTypes.func,
     onDoubleClick: React.PropTypes.func,
 };
 
@@ -64,6 +66,7 @@ Cell.defaultProps = {
     value: 0,
     onClick: () => {},
     onDoubleClick: () => {},
+    onRightClick: () => {},
 };
 
 export default Cell;

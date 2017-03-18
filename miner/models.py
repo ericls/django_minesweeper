@@ -24,7 +24,7 @@ class Game(models.Model):
         board = Board(json.loads(self.board))
         for action in actions:
             board.apply_action(action.action_type, action.x, action.y)
-        return {"state": board.state, "wind": board.win, "lost": board.lost}
+        return {"state": board.state, "win": board.win, "lost": board.lost}
 
 
 class GameAction(models.Model):

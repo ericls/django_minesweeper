@@ -29,6 +29,21 @@ const GameBoard = (props) => {
         })
         .catch((err) => {console.log(err)});
     };
+    const undo = () => {
+        $.ajax({
+            method: 'get',
+            url: `/api/game/${gameId}/back/`,
+            contentType: "application/json",
+        })
+        .done((data) => {
+            setGameState({
+                win: data.win,
+                lost: data.lost,
+                gameState: data.state,
+            });
+        })
+        .catch((err) => {console.log(err)});
+    };
     const onClickLocation = (x, y) => (e) => {
         e.preventDefault();
         const which = e.nativeEvent.which;
@@ -58,6 +73,7 @@ const GameBoard = (props) => {
                         const location = [x, y];
                         return (
                             <Cell
+                                onRightClick={onClickLocation(x, y)}
                                 onClick={onClickLocation(x, y)}
                                 onDoubleClick={onDoubleClickLocation(x, y)}
                                 key={location}
@@ -101,7 +117,7 @@ const GameBoard = (props) => {
                 {rows}
             </div>
             <div className="actions">
-                <a className="button" onClick={() => {}}>Regret</a>
+                <a className="button" onClick={undo}>Undo</a>
             </div>
         </div>
     )
