@@ -1,9 +1,13 @@
-from django.conf.urls import url
-from miner import views
+from django.conf.urls import url, include
+from miner import api
+
+api_urlpatterns = [
+    url(r'^create/$', api.create_game, name='create_game'),
+    url(r'^game/(?P<pk>\d+)/action/$', api.apply_action, name='apply_action'),
+    url(r'^game/(?P<pk>\d+)/back/$', api.go_back, name='go_back'),
+    url(r'^game/(?P<pk>\d+)$', api.get_game, name='get_game'),
+]
 
 urlpatterns = [
-    url(r'^create/$', views.create_game, name='create_game'),
-    url(r'^game/(?P<pk>\d+)/action/$', views.apply_action, name='apply_action'),
-    url(r'^game/(?P<pk>\d+)/back/$', views.go_back, name='go_back'),
-    url(r'^game/(?P<pk>\d+)$', views.get_game, name='get_game'),
+    url(r'^api/', include(api_urlpatterns))
 ]

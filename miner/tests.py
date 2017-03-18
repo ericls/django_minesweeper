@@ -9,7 +9,7 @@ logging.disable(logging.CRITICAL)
 CLICK_TYPE, DOUBLE_CLICK_TYPE, FLAG_TYPE = 0, 1, 2
 
 
-# Test miner.view.create_game
+# Test miner.api.create_game
 class CreateGameAPITest(TestCase):
 
     def setUp(self):
@@ -17,7 +17,7 @@ class CreateGameAPITest(TestCase):
 
     def testCreateGame(self):
         res = self.client.post(
-            "/create/",
+            "/api/create/",
             json.dumps(dict(
                 numOfMines=10,
                 size=[10, 20]
@@ -29,12 +29,12 @@ class CreateGameAPITest(TestCase):
         self.assertIn("gameId", body)
 
     def testShouldNotAllowGet(self):
-        res = self.client.get("/create/")
+        res = self.client.get("/api/create/")
         self.assertEqual(res.status_code, 405)
 
     def testShouldNotCreateGameWithoutRequiredData(self):
         res = self.client.post(
-            "/create/",
+            "/api/create/",
             json.dumps(dict(
                 numOfMines=10
             )),
@@ -44,7 +44,7 @@ class CreateGameAPITest(TestCase):
 
     def testShouldNotCreateGameWithBadJson(self):
         res = self.client.post(
-            "/create/",
+            "/api/create/",
             "[{\"a\": b}]",
             content_type="application/json"
         )
@@ -52,19 +52,19 @@ class CreateGameAPITest(TestCase):
 
     def testShouldNotAllowNoneJson(self):
         res = self.client.post(
-            "/create/",
+            "/api/create/",
             {"a": 1, "b": 2},
         )
         self.assertEqual(res.status_code, 415)
 
 
-# Test miner.view.get_game
+# Test miner.api.get_game
 class GetGameAPITest(TestCase):
 
     def setUp(self):
         self.client = Client()
         res = self.client.post(
-            "/create/",
+            "/api/create/",
             json.dumps(dict(
                 numOfMines=10,
                 size=[10, 20]
@@ -76,7 +76,7 @@ class GetGameAPITest(TestCase):
 
     def testGetGame(self):
         res = self.client.get(
-            "/game/{}".format(self.game_id)
+            "/api/game/{}".format(self.game_id)
         )
         self.assertEqual(res.status_code, 200)
         body = json.loads(res.content.decode("utf-8"))
@@ -85,12 +85,12 @@ class GetGameAPITest(TestCase):
     def testShouldReturn404(self):
         game_id = self.game_id + 100
         res = self.client.get(
-            "/game/{}".format(game_id)
+            "/api/game/{}".format(game_id)
         )
         self.assertEqual(res.status_code, 404)
 
 
-# Test miner.view.apply_action
+# Test miner.api.apply_action
 class ApplyActionAPITest(TestCase):
 
     def setUp(self):
@@ -109,7 +109,7 @@ class ApplyActionAPITest(TestCase):
 
     def testApplyAction(self):
         res = self.client.post(
-            "/game/{}/action/".format(self.game.id),
+            "/api/game/{}/action/".format(self.game.id),
             json.dumps(dict(
                 action_type=CLICK,
                 x=0,
@@ -128,7 +128,7 @@ class ApplyActionAPITest(TestCase):
              [None, None, None, None, None]]
         )
         res = self.client.post(
-            "/game/{}/action/".format(self.game.id),
+            "/api/game/{}/action/".format(self.game.id),
             json.dumps(dict(
                 action_type=CLICK,
                 x=0,
@@ -147,7 +147,7 @@ class ApplyActionAPITest(TestCase):
         )
 
 
-# Test miner.view.go_back
+# Test miner.api.go_back
 class GoBackAPITest(TestCase):
 
     def setUp(self):
@@ -168,7 +168,7 @@ class GoBackAPITest(TestCase):
         self.game.apply_action(CLICK, 0, 4)
         self.game.apply_action(CLICK, 0, 2)
         res = self.client.get(
-            "/game/{}/back/".format(self.game.id),
+            "/api/game/{}/back/".format(self.game.id),
         )
         self.assertEqual(res.status_code, 200)
         body = json.loads(res.content.decode("utf-8"))
