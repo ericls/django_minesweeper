@@ -11,4 +11,5 @@ api_urlpatterns = [
 urlpatterns = [
     url(r'^api/', include(api_urlpatterns)),
     url(r'^$', views.index, name='index'),
+    url(r'^game/(?P<pk>\d+)$', views.show_game, name='show_game'),
 ]

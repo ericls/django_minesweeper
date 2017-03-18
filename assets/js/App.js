@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from 'jquery';
 import GameBoard from './GameBoard';
 
 class App extends React.Component {
@@ -6,22 +7,57 @@ class App extends React.Component {
         super(props);
         this.state = {
             gameState: [],
+            gameId: 0,
             win: false,
             lost: false,
             numOfMines: '10',
             x: '10',
             y: '10',
         };
+        this.setGameState = (newState) => {
+            this.setState(newState)
+        };
         this.newGame = () => {
-            this.setState({
-                gameState: [
-                    [0, 1, 1, 1, 0],
-                    [0, 1, 9, 2, 1],
-                    [1, 2, 2, null, null],
-                    [null, null, null, null, null],
-                    [null, null, null, null, null],
-                ],
+            const { numOfMines, x, y} = this.state;
+            $.ajax({
+                method: 'POST',
+                url: '/api/create/',
+                data: JSON.stringify({
+                    numOfMines: parseInt(numOfMines, 10),
+                    size: [parseInt(x, 10), parseInt(y, 10)],
+                }),
+                dataType: 'json',
+                contentType: "application/json",
             })
+            .done((data) => {
+                // console.log(data)
+                this.setState({
+                    gameState: data.state,
+                    gameId: data.gameId,
+                });
+                window.history.pushState('page', 'title', `/game/${data.gameId}`);
+            })
+            .catch((err) => {console.log(err)});
+        }
+    }
+
+    componentDidMount() {
+        const initialId = window.initialGameId;
+        if (initialId) {
+            $.ajax({
+                method: 'GET',
+                url: `/api/game/${initialId}`,
+                dataType: 'json',
+            })
+            .done((data) => {
+                this.setState({
+                    win: data.win,
+                    lost: data.lost,
+                    gameState: data.state,
+                    gameId: initialId,
+                });
+            })
+            .catch((err) => {console.log(err)});
         }
     }
 
@@ -65,7 +101,13 @@ class App extends React.Component {
         }
         return (
             <div>
-                <GameBoard gameState={this.state.gameState} win={this.state.win} lost={this.state.lost} />
+                <GameBoard
+                    setGameState={this.setGameState}
+                    gameState={this.state.gameState}
+                    win={this.state.win}
+                    lost={this.state.lost}
+                    gameId={this.state.gameId}
+                />
             </div>
         )
     }

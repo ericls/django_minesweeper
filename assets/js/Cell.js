@@ -43,6 +43,8 @@ const Cell = (props) => {
     };
     return (
         <div
+            onClick={value ? () => {} : props.onClick}
+            onDoubleClick={value ? props.onDoubleClick : () => {}}
             className="cell"
             style={getStyle(value)}
         >
@@ -54,10 +56,14 @@ const Cell = (props) => {
 Cell.propTypes = {
     location: React.PropTypes.array.isRequired,
     value: React.PropTypes.number,
+    onClick: React.PropTypes.func,
+    onDoubleClick: React.PropTypes.func,
 };
 
 Cell.defaultProps = {
-    value: 0
+    value: 0,
+    onClick: () => {},
+    onDoubleClick: () => {},
 };
 
 export default Cell;

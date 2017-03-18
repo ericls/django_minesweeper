@@ -101,13 +101,16 @@ class Board(object):
             `_from` should be the coordinate of that adjacent cell to avoid infinite recursion
         :return: True if the action is successfully applied
         """
+        state_cell_value = self.state[x][y]
+        if state_cell_value is not None:
+            return False
         cell_value = self.board[x][y]
         if cell_value == 9:
             self.lost = True
-            return False
+            return True
         if 0 < cell_value < 9:
             self.state[x][y] = cell_value
-            return False
+            return True
         self.state[x][y] = 0
         adjacent_cells_coordinates = self.__get_adjacent_cell_coordinates((x, y))
         for (a, b) in adjacent_cells_coordinates:

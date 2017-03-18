@@ -1,5 +1,5 @@
 import logging
-from django.shortcuts import render
+import json
 from django.http import JsonResponse
 from miner.models import Game
 from miner.Board import Board
@@ -20,7 +20,7 @@ def create_game(request):
         )
     try:
         board = Board.generate_new_board(size, num_of_mines).board
-        game = Game.objects.create(board=board)
+        game = Game.objects.create(board=json.dumps(board))
     except Exception as e:
         logger.exception(e)
         return JsonResponse(
@@ -29,7 +29,7 @@ def create_game(request):
         )
     return JsonResponse(
         status=201,
-        data={"gameId": game.id}
+        data=dict(gameId=game.id, **game.latest_state)
     )
 
 

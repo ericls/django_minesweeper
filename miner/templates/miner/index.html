@@ -56,6 +56,11 @@
 
 <body>
 <div id="app"></div>
+{% if initialGameId %}
+    <script>
+        window.initialGameId = {{ initialGameId }};
+    </script>
+{% endif %}
 {% render_bundle 'main' %}
 </body>
 </html>

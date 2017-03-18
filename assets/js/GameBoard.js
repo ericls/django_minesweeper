@@ -1,8 +1,48 @@
 import React from 'react';
 import Cell from './Cell';
+import $ from 'jquery';
+
+const CLICK = 0;
+const DOUBLE_CLICK = 1;
+const FLAG = 2;
 
 const GameBoard = (props) => {
-    const {gameState, win, lost} = props;
+    const {gameState, win, lost, setGameState, gameId} = props;
+    const sendAction = (action_type, x, y) => {
+        $.ajax({
+            method: 'POST',
+            url: `/api/game/${gameId}/action/`,
+            data: JSON.stringify({
+                action_type,
+                x,
+                y,
+            }),
+            dataType: 'json',
+            contentType: "application/json",
+        })
+        .done((data) => {
+            setGameState({
+                win: data.win,
+                lost: data.lost,
+                gameState: data.state,
+            });
+        })
+        .catch((err) => {console.log(err)});
+    };
+    const onClickLocation = (x, y) => (e) => {
+        e.preventDefault();
+        const which = e.nativeEvent.which;
+        if (which === 1) {
+            return sendAction(CLICK, x, y)
+        }
+        if (which === 3) {
+            return sendAction(FLAG, x, y)
+        }
+    };
+    const onDoubleClickLocation = (x, y) => (e) => {
+        e.preventDefault();
+        return sendAction(DOUBLE_CLICK, x, y)
+    };
     const rows = gameState.map((row, x) => {
         return (
             <div
@@ -16,15 +56,37 @@ const GameBoard = (props) => {
                 {
                     row.map((item, y) => {
                         const location = [x, y];
-                        return <Cell key={location}  value={item} location={[x, y]} />
+                        return (
+                            <Cell
+                                onClick={onClickLocation(x, y)}
+                                onDoubleClick={onDoubleClickLocation(x, y)}
+                                key={location}
+                                value={item}
+                                location={[x, y]}
+                            />
+                        )
                     })
                 }
             </div>
         )
     });
+    const notification = (() => {
+        if (win) {
+            return (
+                <span className="success">You win</span>
+            )
+        }
+        if (lost) {
+            return (
+                <span className="success">You Lost</span>
+            )
+        }
+        return null;
+    })();
     return(
         <div>
             <div className="notification">
+                {notification}
             </div>
             <div className="stats">
             </div>
