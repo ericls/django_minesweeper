@@ -34,6 +34,9 @@ const GameBoard = (props) => {
         .catch((err) => {console.log(err)});
     };
     const undo = () => {
+        if (window.socket) {
+            window.socket.send(window.gameClientId);
+        }
         $.ajax({
             method: 'get',
             url: `/api/game/${gameId}/back/`,
