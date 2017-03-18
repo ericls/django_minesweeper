@@ -1,13 +1,61 @@
 {% load render_bundle from webpack_loader %}
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
     <title>Minesweeper</title>
-  </head>
+    <style>
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+        .cell {
+            cursor: pointer;
+            height: 30px;
+            width: 30px;
+            text-align: center;
+            background-color: #ccc;
+            border: solid 1px #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .cell:hover {
+            border: solid 1px #AAA;
+        }
+        input {
+            display: block;
+            margin-top: 10px;
+            background: #F7F8FA;
+            border: 1px solid #DDDFE4;
+            border-radius: 8px;
+            padding: 5px 10px;
+        }
+        a.button {
+            cursor: pointer;
+            border-radius: 8px;
+            text-transform: uppercase;
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            margin: 10px 0;
+            background: none;
+            color: #52D186;
+            border: 1px solid #52D186;
+        }
+    </style>
+</head>
 
-  <body>
-    <div id="app"></div>
-    {% render_bundle 'main' %}
-  </body>
+<body>
+<div id="app"></div>
+{% render_bundle 'main' %}
+</body>
 </html>
