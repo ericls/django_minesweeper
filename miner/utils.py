@@ -2,6 +2,16 @@
 import random
 import itertools
 
+CLICK = "CLICK"
+DOUBLE_CLICK = "DOUBLE_CLICK"
+FLAG = "FLAG"
+
+GameActionTypes = [
+    CLICK,
+    DOUBLE_CLICK,
+    FLAG
+]
+
 
 class Board(object):
 
@@ -15,6 +25,9 @@ class Board(object):
             raise ValueError('input board is malformed')
         self.size = (row, col)
         self.board = initial_board
+        self.state = [[None for _ in range(col)] for _ in range(row)]
+        self.win = False
+        self.lost = False
         self.coordinates = [(i, j) for j in range(col) for i in range(row)]
 
     @classmethod
@@ -34,6 +47,27 @@ class Board(object):
         empty_board.plant(num_of_mines, seed)
         empty_board.mark()
         return empty_board
+
+    def apply_action(self, t, x, y):
+        """
+        Apply action to the current board. This method mutates the `state` property and mark win or lost
+        :param t: CLICK | DOUBLE_CLICK | FLAG
+        :param x: coordinate X
+        :param y: coordinate Y
+        :return: Boolean. If the action is successfully applied, returns True, otherwise, False
+        """
+        if self.win or self.lost:
+            return False
+        valid_action = None
+        if t == CLICK:
+            valid_action = self._apply_click(x, y)
+        if t == DOUBLE_CLICK:
+            valid_action = self._apply_double_click(x, y)
+        if t == FLAG:
+            valid_action = self._apply_flag(x, y)
+        if self.state == self.board:
+            self.win = True
+        return valid_action
 
     def plant(self, num_of_mines, seed=None):
         """
@@ -57,6 +91,70 @@ class Board(object):
         """
         for (x, y) in self.coordinates:
             self.__mark_one_cell((x, y))
+
+    def _apply_click(self, x, y, _from=None):
+        """
+        Applies CLICK action to the current board, on cell (x, y).
+        :param x: coordinate X
+        :param y: coordinate Y
+        :param _from: If this CLICK action is triggered indirectly by an action on adjacent cell,
+            `_from` should be the coordinate of that adjacent cell to avoid infinite recursion
+        :return: True if the action is successfully applied
+        """
+        cell_value = self.board[x][y]
+        if cell_value == 9:
+            self.lost = True
+            return False
+        if 0 < cell_value < 9:
+            self.state[x][y] = cell_value
+            return False
+        self.state[x][y] = 0
+        adjacent_cells_coordinates = self.__get_adjacent_cell_coordinates((x, y))
+        for (a, b) in adjacent_cells_coordinates:
+            if (a, b) == _from:
+                continue
+            self._apply_click(a, b, (x, y))
+        return True
+
+    def _apply_double_click(self, x, y):
+        """
+        Applies DOUBLE_CLICK action to the current board, on cell (x, y).
+        A DOUBLE_CLICK clicks all adjacent cells if the value of the clicked cell is equal to
+        the number of adjacent flags
+        :param x: coordinate X
+        :param y: coordinate Y
+        :return: True if the action is successfully applied
+        """
+        cell_value = self.board[x][y]
+        if not cell_value:
+            return False
+        adjacent_cells_coordinates = self.__get_adjacent_cell_coordinates((x, y))
+        adjacent_flag_count = 0
+        for (a, b) in adjacent_cells_coordinates:
+            if self.state[a][b] == 9:
+                adjacent_flag_count += 1
+        if adjacent_flag_count != cell_value:
+            return False
+        for (a, b) in adjacent_cells_coordinates:
+            if not self.state[a][b] == 9:
+                self._apply_click(a, b)
+        return True
+
+    def _apply_flag(self, x, y):
+        """
+        Applies FLAG action to the current board, on cell (x, y).
+        It sets or removes a flag at the cell.
+        :param x: coordinate X
+        :param y: coordinate Y
+        :return: True if the action is successfully applied
+        """
+        if self.state[x][y] == 9:
+            self.state[x][y] = None
+            return False
+        if self.state[x][y]:
+            return False
+        self.state[x][y] = 9
+        return True
 
     def __mark_one_cell(self, coordinate):
         x, y = coordinate

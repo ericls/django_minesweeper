@@ -1,6 +1,30 @@
+import json
 import random
 from django.test import TestCase
-from miner.utils import Board
+from miner.models import Game
+from miner.utils import Board, CLICK, DOUBLE_CLICK, FLAG
+
+
+# Test miner.models.Game
+class GameModelTest(TestCase):
+
+    def setUp(self):
+        initial_field_data = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0],
+            [0, 0, 0, 0, 9],
+            [0, 9, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ]
+        self.initial_field_data = initial_field_data
+        self.game = Game.objects.create(board=json.dumps(initial_field_data))
+
+    def testReadGameAndParseBoardData(self):
+        game = Game.objects.get(pk=self.game.pk)
+        self.assertEqual(
+            json.loads(game.board),
+            self.initial_field_data
+        )
 
 
 # Test miner.utils.Board
@@ -68,3 +92,137 @@ class UtilsBoardTest(TestCase):
         board = Board(self.initial_field_data)
         board.mark()
         self.assertEqual(Board(self.initial_field_data).board, expected)
+
+    def testApplyActionToChangeStateEndToEnd(self):
+        board = Board(self.initial_field_data)
+        board.mark()
+        board.apply_action(CLICK, 0, 4)
+        self.assertEqual(
+            board.state,
+            [[None, None, None, 1, 0],
+             [None, None, None, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(CLICK, 0, 2)
+        self.assertEqual(
+            board.state,
+            [[None, None, 1, 1, 0],
+             [None, None, None, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(FLAG, 1, 2)
+        self.assertEqual(
+            board.state,
+            [[None, None, 1, 1, 0],
+             [None, None, 9, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(FLAG, 0, 3)
+        self.assertEqual(
+            board.state,
+            [[None, None, 1, 1, 0],
+             [None, None, 9, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        res = board.apply_action(FLAG, 1, 2)
+        self.assertEqual(res, False)
+        self.assertEqual(
+            board.state,
+            [[None, None, 1, 1, 0],
+             [None, None, None, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(FLAG, 1, 2)
+        board.apply_action(DOUBLE_CLICK, 0, 2)
+        self.assertEqual(
+            board.state,
+            [[None, 1, 1, 1, 0],
+             [None, 1, 9, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(DOUBLE_CLICK, 1, 1)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(CLICK, 2, 3)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, 2, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(FLAG, 2, 4)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, 2, 9],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(DOUBLE_CLICK, 2, 3)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, 2, 9],
+             [None, None, 1, 1, 1],
+             [None, None, None, None, None]]
+        )
+        board.apply_action(DOUBLE_CLICK, 3, 4)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, 2, 9],
+             [None, None, 1, 1, 1],
+             [None, None, 1, 0, 0]]
+        )
+        board.apply_action(FLAG, 3, 1)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, 2, 9],
+             [None, 9, 1, 1, 1],
+             [None, None, 1, 0, 0]]
+        )
+        board.apply_action(CLICK, 4, 0)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, 2, 9],
+             [None, 9, 1, 1, 1],
+             [1, None, 1, 0, 0]]
+        )
+        board.apply_action(DOUBLE_CLICK, 4, 0)
+        self.assertEqual(
+            board.state,
+            [[0, 1, 1, 1, 0],
+             [0, 1, 9, 2, 1],
+             [1, 2, 2, 2, 9],
+             [1, 9, 1, 1, 1],
+             [1, 1, 1, 0, 0]]
+        )
+        self.assertEqual(board.win, True)
+
