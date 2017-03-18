@@ -1,0 +1,34 @@
+{
+  "name": "django_minesweeper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericls/django-minesweeper.git"
+  },
+  "author": "Shen Li <dustet@gmail.com> (https://shenli.me)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ericls/django-minesweeper/issues"
+  },
+  "homepage": "https://github.com/ericls/django-minesweeper#readme",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-es2016": "^6.22.0",
+    "babel-preset-react": "^6.23.0",
+    "react": "^15.4.2",
+    "webpack": "^1.14",
+    "webpack-bundle-tracker": "^0.1.0"
+  },
+  "dependencies": {
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  }
+}

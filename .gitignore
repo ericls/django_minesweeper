@@ -95,3 +95,6 @@ ENV/
 
 .idea/
 db.sqlite3
+
+node_modules/
+assets/bundles

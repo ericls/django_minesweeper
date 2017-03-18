@@ -1,5 +1,5 @@
 from django.conf.urls import url, include
-from miner import api
+from miner import api, views
 
 api_urlpatterns = [
     url(r'^create/$', api.create_game, name='create_game'),
@@ -9,5 +9,6 @@ api_urlpatterns = [
 ]
 
 urlpatterns = [
-    url(r'^api/', include(api_urlpatterns))
+    url(r'^api/', include(api_urlpatterns)),
+    url(r'^$', views.index, name='index'),
 ]
