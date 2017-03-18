@@ -10,7 +10,7 @@ CLICK_TYPE, DOUBLE_CLICK_TYPE, FLAG_TYPE = 0, 1, 2
 
 
 # Test miner.view.create_game
-class CreateGameViewTest(TestCase):
+class CreateGameAPITest(TestCase):
 
     def setUp(self):
         self.client = Client()
@@ -26,7 +26,7 @@ class CreateGameViewTest(TestCase):
         )
         self.assertEqual(res.status_code, 201)
         body = json.loads(res.content.decode("utf-8"))
-        self.assertTrue("gameId" in body)
+        self.assertIn("gameId", body)
 
     def testShouldNotAllowGet(self):
         res = self.client.get("/create/")
@@ -56,6 +56,130 @@ class CreateGameViewTest(TestCase):
             {"a": 1, "b": 2},
         )
         self.assertEqual(res.status_code, 415)
+
+
+# Test miner.view.get_game
+class GetGameAPITest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        res = self.client.post(
+            "/create/",
+            json.dumps(dict(
+                numOfMines=10,
+                size=[10, 20]
+            )),
+            content_type="application/json"
+        )
+        body = json.loads(res.content.decode("utf-8"))
+        self.game_id = body["gameId"]
+
+    def testGetGame(self):
+        res = self.client.get(
+            "/game/{}".format(self.game_id)
+        )
+        self.assertEqual(res.status_code, 200)
+        body = json.loads(res.content.decode("utf-8"))
+        self.assertIn("state", body)
+
+    def testShouldReturn404(self):
+        game_id = self.game_id + 100
+        res = self.client.get(
+            "/game/{}".format(game_id)
+        )
+        self.assertEqual(res.status_code, 404)
+
+
+# Test miner.view.apply_action
+class ApplyActionAPITest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        initial_field_data = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0],
+            [0, 0, 0, 0, 9],
+            [0, 9, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ]
+        board = Board(initial_field_data)
+        board.mark()
+        self.marked_initial_data = board.board
+        self.game = Game.objects.create(board=json.dumps(self.marked_initial_data))
+
+    def testApplyAction(self):
+        res = self.client.post(
+            "/game/{}/action/".format(self.game.id),
+            json.dumps(dict(
+                action_type=CLICK,
+                x=0,
+                y=4,
+            )),
+            content_type="application/json"
+        )
+        self.assertEqual(res.status_code, 200)
+        body = json.loads(res.content.decode("utf-8"))
+        self.assertEqual(
+            body["state"],
+            [[None, None, None, 1, 0],
+             [None, None, None, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+        res = self.client.post(
+            "/game/{}/action/".format(self.game.id),
+            json.dumps(dict(
+                action_type=CLICK,
+                x=0,
+                y=2,
+            )),
+            content_type="application/json"
+        )
+        body = json.loads(res.content.decode("utf-8"))
+        self.assertEqual(
+            body["state"],
+            [[None, None, 1, 1, 0],
+             [None, None, None, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
+
+
+# Test miner.view.go_back
+class GoBackAPITest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        initial_field_data = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 9, 0, 0],
+            [0, 0, 0, 0, 9],
+            [0, 9, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ]
+        board = Board(initial_field_data)
+        board.mark()
+        self.marked_initial_data = board.board
+        self.game = Game.objects.create(board=json.dumps(self.marked_initial_data))
+
+    def testGoBack(self):
+        self.game.apply_action(CLICK, 0, 4)
+        self.game.apply_action(CLICK, 0, 2)
+        res = self.client.get(
+            "/game/{}/back/".format(self.game.id),
+        )
+        self.assertEqual(res.status_code, 200)
+        body = json.loads(res.content.decode("utf-8"))
+        self.assertEqual(
+            body["state"],
+            [[None, None, None, 1, 0],
+             [None, None, None, 2, 1],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
 
 
 # Test miner.models.Game
@@ -88,7 +212,7 @@ class GameModelTest(TestCase):
         game.apply_action(FLAG, 1, 2)
         game.apply_action(DOUBLE_CLICK, 0, 2)
         self.assertEqual(
-            game.latest_state,
+            game.latest_state["state"],
             [[None, 1, 1, 1, 0],
              [None, 1, 9, 2, 1],
              [None, None, None, None, None],
@@ -104,7 +228,7 @@ class GameModelTest(TestCase):
         game.apply_action(DOUBLE_CLICK, 0, 2)
         game.apply_action(DOUBLE_CLICK, 1, 1)
         self.assertEqual(
-            game.latest_state,
+            game.latest_state["state"],
             [[0, 1, 1, 1, 0],
              [0, 1, 9, 2, 1],
              [1, 2, 2, None, None],
@@ -113,7 +237,7 @@ class GameModelTest(TestCase):
         )
         game.go_back()
         self.assertEqual(
-            game.latest_state,
+            game.latest_state["state"],
             [[None, 1, 1, 1, 0],
              [None, 1, 9, 2, 1],
              [None, None, None, None, None],

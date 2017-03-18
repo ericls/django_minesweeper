@@ -7,6 +7,8 @@ class Game(models.Model):
 
     board = models.TextField()
 
+    # TODO: ensure board is marked
+
     def apply_action(self, action_type, x, y):
         # TODO: Check if the action can be applied
         GameAction.objects.create(game_id=self.id, action_type=action_type, x=x, y=y)
@@ -22,7 +24,7 @@ class Game(models.Model):
         board = Board(json.loads(self.board))
         for action in actions:
             board.apply_action(action.action_type, action.x, action.y)
-        return board.state
+        return {"state": board.state, "wind": board.win, "lost": board.lost}
 
 
 class GameAction(models.Model):
