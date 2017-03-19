@@ -146,6 +146,17 @@ class ApplyActionAPITest(TestCase):
              [None, None, None, None, None]]
         )
 
+    def testMalformedAction(self):
+        res = self.client.post(
+            "/api/game/{}/action/".format(self.game.id),
+            json.dumps(dict(
+                action_type=CLICK,
+                x=0,
+            )),
+            content_type="application/json"
+        )
+        self.assertEqual(res.status_code, 400)
+
 
 # Test miner.api.go_back
 class GoBackAPITest(TestCase):
@@ -312,9 +323,59 @@ class UtilsBoardTest(TestCase):
         board.mark()
         self.assertEqual(Board(self.initial_field_data).board, expected)
 
+    def testLose(self):
+        """
+        Should set board.lost to True after triggered boom.
+        """
+        board = Board(self.initial_field_data)
+        board.mark()
+        board.apply_action(CLICK, 1, 2)
+        self.assertEqual(board.lost, True)
+
+    def testShouldNotApplyActionAfterLose(self):
+        board = Board(self.initial_field_data)
+        board.mark()
+        board.apply_action(CLICK, 1, 2)
+        res = board.apply_action(CLICK, 0, 0)
+        self.assertEqual(res, False)
+
+    def testShouldNotApplyDoubleClickToEmptyCell(self):
+        board = Board(self.initial_field_data)
+        board.mark()
+        res = board.apply_action(DOUBLE_CLICK, 0, 0)
+        self.assertEqual(res, False)
+
+    def testShouldNotApplyDoubleClickWhenFlagCountNotMatch(self):
+        board = Board(self.initial_field_data)
+        board.mark()
+        board.apply_action(CLICK, 0, 3)
+        res = board.apply_action(DOUBLE_CLICK, 0, 3)
+        self.assertEqual(res, False)
+
+    def testShouldNotAddFlag(self):
+        """
+        Should not add more flag than num_of_mines
+        """
+        board = Board(self.initial_field_data)
+        board.mark()
+        for (x, y) in [(0, 1), (0, 2), (0, 3)]:
+            res = board.apply_action(FLAG, x, y)
+            self.assertEqual(res, True)
+        res = board.apply_action(FLAG, 4, 4)
+        self.assertEqual(res, False)
+
     def testApplyActionToChangeStateEndToEnd(self):
         board = Board(self.initial_field_data)
         board.mark()
+        board.apply_action(CLICK, 0, 3)
+        self.assertEqual(
+            board.state,
+            [[None, None, None, 1, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None],
+             [None, None, None, None, None]]
+        )
         board.apply_action(CLICK, 0, 4)
         self.assertEqual(
             board.state,
@@ -444,4 +505,3 @@ class UtilsBoardTest(TestCase):
              [1, 1, 1, 0, 0]]
         )
         self.assertEqual(board.win, True)
-

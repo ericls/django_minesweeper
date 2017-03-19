@@ -132,15 +132,15 @@ class Board(object):
         :param y: coordinate Y
         :return: True if the action is successfully applied
         """
-        cell_value = self.board[x][y]
-        if not cell_value:
+        state_cell_value = self.state[x][y]
+        if not state_cell_value:
             return False
         adjacent_cells_coordinates = self.__get_adjacent_cell_coordinates((x, y))
         adjacent_flag_count = 0
         for (a, b) in adjacent_cells_coordinates:
             if self.state[a][b] == 9:
                 adjacent_flag_count += 1
-        if adjacent_flag_count != cell_value:
+        if adjacent_flag_count != state_cell_value:
             return False
         for (a, b) in adjacent_cells_coordinates:
             if not self.state[a][b] == 9:
