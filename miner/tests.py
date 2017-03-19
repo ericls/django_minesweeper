@@ -342,15 +342,19 @@ class UtilsBoardTest(TestCase):
     def testShouldNotApplyDoubleClickToEmptyCell(self):
         board = Board(self.initial_field_data)
         board.mark()
-        res = board.apply_action(DOUBLE_CLICK, 0, 0)
+        res, _ = board.apply_action(DOUBLE_CLICK, 0, 0)
         self.assertEqual(res, False)
 
     def testShouldNotApplyDoubleClickWhenFlagCountNotMatch(self):
         board = Board(self.initial_field_data)
         board.mark()
         board.apply_action(CLICK, 0, 3)
-        res = board.apply_action(DOUBLE_CLICK, 0, 3)
+        res, _ = board.apply_action(DOUBLE_CLICK, 0, 3)
         self.assertEqual(res, False)
+
+    def testGivenInitialState(self):
+        board = Board(self.initial_field_data, initial_state=self.initial_field_data)
+        self.assertEqual(board.win, True)
 
     def testShouldNotAddFlag(self):
         """
@@ -359,9 +363,9 @@ class UtilsBoardTest(TestCase):
         board = Board(self.initial_field_data)
         board.mark()
         for (x, y) in [(0, 1), (0, 2), (0, 3)]:
-            res = board.apply_action(FLAG, x, y)
+            res, _ = board.apply_action(FLAG, x, y)
             self.assertEqual(res, True)
-        res = board.apply_action(FLAG, 4, 4)
+        res, _ = board.apply_action(FLAG, 4, 4)
         self.assertEqual(res, False)
 
     def testApplyActionToChangeStateEndToEnd(self):
@@ -412,8 +416,9 @@ class UtilsBoardTest(TestCase):
              [None, None, None, None, None],
              [None, None, None, None, None]]
         )
-        res = board.apply_action(FLAG, 1, 2)
+        res, new_state = board.apply_action(FLAG, 1, 2)
         self.assertEqual(res, True)
+        self.assertEqual(new_state, board.state)
         self.assertEqual(
             board.state,
             [[None, None, 1, 1, 0],

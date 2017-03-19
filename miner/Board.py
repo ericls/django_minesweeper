@@ -15,7 +15,7 @@ GameActionTypes = [
 
 class Board(object):
 
-    def __init__(self, initial_board):
+    def __init__(self, initial_board, initial_state=None):
         row = len(initial_board)
         try:
             col = len(initial_board[0])
@@ -25,10 +25,7 @@ class Board(object):
             raise ValueError('input board is malformed')
         self.size = (row, col)
         self.board = initial_board
-        self.state = [[None for _ in range(col)] for _ in range(row)]
-        self.win = False
-        self.lost = False
-        self.flag_count = 0
+        self.state = initial_state or [[None for _ in range(col)] for _ in range(row)]
         self.coordinates = [(i, j) for j in range(col) for i in range(row)]
 
     @classmethod
@@ -55,13 +52,22 @@ class Board(object):
         num_of_mines = [item for sublist in self.board for item in sublist].count(9)
         return num_of_mines - num_of_flags
 
+    @property
+    def win(self):
+        return self.board == self.state
+
+    @property
+    def lost(self):
+        return any([(10 in row) for row in self.state])
+
     def apply_action(self, t, x, y):
         """
-        Apply action to the current board. This method mutates the `state` property and mark win or lost
+        Apply action to the current board.
+        This method mutates the `state` property.
         :param t: CLICK | DOUBLE_CLICK | FLAG
         :param x: coordinate X
         :param y: coordinate Y
-        :return: Boolean. If the action is successfully applied, returns True, otherwise, False
+        :return: (action_is_valid, new_state)
         """
         if self.win or self.lost:
             return False
@@ -72,13 +78,12 @@ class Board(object):
             action_is_valid = self._apply_double_click(x, y)
         if t == FLAG:
             action_is_valid = self._apply_flag(x, y)
-        if self.state == self.board:
-            self.win = True
-        return action_is_valid
+        return action_is_valid, self.state
 
     def plant(self, num_of_mines, seed=None):
         """
-        Mark the current board
+        Mark the current board.
+        This method mutates the `board` property
         :param num_of_mines: number of mines to plant
         :param seed: the seed used in random module
         :return: None
@@ -114,8 +119,7 @@ class Board(object):
             return False
         cell_value = self.board[x][y]
         if cell_value == 9:
-            self.state[x][y] = True
-            self.lost = True
+            self.state[x][y] = 10
             return True
         if 0 < cell_value < 9:
             self.state[x][y] = cell_value

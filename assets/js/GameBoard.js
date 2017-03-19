@@ -83,7 +83,7 @@ const GameBoard = (props) => {
                                 key={location}
                                 value={item}
                                 location={[x, y]}
-                                boomed={item === true}
+                                boomed={item === 10}
                             />
                         )
                     })

@@ -7,7 +7,7 @@ from miner.Board import Board, CLICK, DOUBLE_CLICK, FLAG
 class Game(models.Model):
     """
     Game model.
-    This model only stores the initial board of the game.
+    This model persists the initial board and current state of a game.
     """
 
     board = models.TextField()
@@ -49,6 +49,12 @@ class Game(models.Model):
             "lost": board.lost,
             "minesLeft": board.mines_left,
         }
+
+    def sync_state(self):
+        """
+        Synchronize state by applying all actions to the initial board
+        """
+        pass
 
     @property
     def _current_board(self):
