@@ -97,7 +97,10 @@ class Board(object):
         :return: None
         """
         for (x, y) in self.coordinates:
-            self.__mark_one_cell((x, y))
+            if self.board[x][y] == 9:
+                for (a, b) in self.__get_adjacent_cell_coordinates((x, y)):
+                    if not self.board[a][b] == 9:
+                        self.board[a][b] += 1
 
     def _apply_click(self, x, y):
         """
@@ -164,17 +167,6 @@ class Board(object):
             return False
         self.state[x][y] = 9
         return True
-
-    def __mark_one_cell(self, coordinate):
-        x, y = coordinate
-        if self.board[x][y] == 9:
-            return
-        adjacent_coordinates = self.__get_adjacent_cell_coordinates(coordinate)
-        count = 0
-        for (a, b) in adjacent_coordinates:
-            if self.board[a][b] == 9:
-                count += 1
-        self.board[x][y] = count
 
     def __get_adjacent_cell_coordinates(self, coordinate):
         x, y = coordinate
