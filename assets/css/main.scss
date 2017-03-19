@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:100,400|Merriweather');
+
+$background-color: #ededea;
+$cell-background-color: #ccc;
+$cell_background-color__covered: #888;
+$cell-border-color: #999;
+$cell-hover-border-color: #AAA;
+$input-background: #F7F8FA;
+$input-border: 1px solid #DDDFE4;
+$input-box-shadow: inset 0px 0px 3px 0px rgba(0,0,0,0.27);
+
+$notification-default: rgba(76, 80, 131, 0.8);
+$notification-success: rgba(80, 131, 76, 0.8);
+$notification-fail: rgba(131, 76, 80, 0.8);
+
+$button-color: rgba(131, 76, 80, 0.8);
+
+$box-radius: 8px;
+
+@mixin flex($direction) {
+  display: flex;
+  flex-direction: $direction;
+}
+
+body {
+  background-color: $background-color;
+}
+
+input {
+  display: block;
+  margin-bottom: 10px;
+  background: $input-background;
+  border: $input-border;
+  box-shadow: $input-box-shadow;
+  border-radius: $box-radius;
+  padding: 5px 10px;
+  &:focus {
+    outline: none;
+  }
+}
+
+.app-container {
+  @include flex(column);
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+.input-label {
+  color: grey;
+  align-self: flex-start;
+}
+
+.game-board {
+  @include flex(column);
+  border: solid 2px $cell-border-color;
+}
+
+.game-board-row {
+  @include flex(row);
+}
+
+.cell {
+  @include flex(row);
+  cursor: pointer;
+  height: 30px;
+  width: 30px;
+  text-align: center;
+  background-color: $cell-background-color;
+  border: solid 1px $cell-border-color;
+  justify-content: center;
+  align-items: center;
+  &:hover {
+    border: solid 1px $cell-hover-border-color;
+  }
+  &__covered {
+    background-color: $cell_background-color__covered;
+  }
+}
+
+.button {
+  cursor: pointer;
+  border-radius: 8px;
+  text-transform: uppercase;
+  display: block;
+  text-align: center;
+  font-size: 1rem;
+  margin: 10px 0;
+  background: none;
+  color: $button-color;
+  border: 1px solid $button-color;
+  &:hover {
+    background-color: $button-color;
+    color: white;
+  }
+  &__start {
+    padding: 5px 10px;
+  }
+}
+
+.notification {
+  font-size: 1rem;
+  border-radius: 20px;
+  padding: 10px;
+  background-color: $notification-default;
+  margin-bottom: 20px;
+  text-align: center;
+  color: white;
+  &__success {
+    background-color: $notification-success;
+  }
+  &__fail {
+    background-color: $notification-fail;
+  }
+}

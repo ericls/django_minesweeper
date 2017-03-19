@@ -99,13 +99,11 @@ class Board(object):
         for (x, y) in self.coordinates:
             self.__mark_one_cell((x, y))
 
-    def _apply_click(self, x, y, _from=None):
+    def _apply_click(self, x, y):
         """
         Applies CLICK action to the current board, on cell (x, y).
         :param x: coordinate X
         :param y: coordinate Y
-        :param _from: If this CLICK action is triggered indirectly by an action on adjacent cell,
-            `_from` should be the coordinate of that adjacent cell to avoid infinite recursion
         :return: True if the action is successfully applied
         """
         state_cell_value = self.state[x][y]
@@ -122,9 +120,7 @@ class Board(object):
         self.state[x][y] = 0
         adjacent_cells_coordinates = self.__get_adjacent_cell_coordinates((x, y))
         for (a, b) in adjacent_cells_coordinates:
-            if (a, b) == _from:
-                continue
-            self._apply_click(a, b, (x, y))
+            self._apply_click(a, b)
         return True
 
     def _apply_double_click(self, x, y):
@@ -192,4 +188,3 @@ class Board(object):
             if (a, b) in self.coordinates:
                 adjacent_coordinates.add((a, b))
         return list(adjacent_coordinates)
-

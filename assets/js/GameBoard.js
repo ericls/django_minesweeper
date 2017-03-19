@@ -71,10 +71,6 @@ const GameBoard = (props) => {
             <div
                 key={x}
                 className="game-board-row"
-                style={{
-                    display: "flex",
-                    flexDirection: "row",
-                }}
             >
                 {
                     row.map((item, y) => {
@@ -99,9 +95,7 @@ const GameBoard = (props) => {
         if (win) {
             return (
                 <div
-                    className="notification" style={{
-                    backgroundColor: "rgba(80, 131, 76, 0.8)"
-                }}
+                    className="notification notification__success"
                 >
                     You Win
                 </div>
@@ -110,9 +104,7 @@ const GameBoard = (props) => {
         if (lost) {
             return (
                 <div
-                    className="notification" style={{
-                    backgroundColor: "rgba(131, 76, 80, 0.8)"
-                }}
+                    className="notification notification__fail"
                 >
                     You Lost
                 </div>
@@ -120,9 +112,7 @@ const GameBoard = (props) => {
         }
         return (
             <div
-                className="notification" style={{
-                backgroundColor: "rgba(76, 80, 131, 0.8)"
-            }}
+                className="notification"
             >
                 Django Mine Sweeper
             </div>
@@ -136,11 +126,6 @@ const GameBoard = (props) => {
             </div>
             <div
                 className="game-board"
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    border: "solid 2px #999",
-                }}
             >
                 {rows}
             </div>

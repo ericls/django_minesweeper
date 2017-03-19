@@ -25,7 +25,12 @@ module.exports = {
                 query: {
                     presets: ['es2015', 'es2016', 'react']
                 }
-            }, // to transform JSX into JS
+            },
+            {
+                test: /\.s(c|a)ss$/,
+                // loader: ExtractTextPlugin.extract("style-loader", "css-loader", "sass-loader"),
+                loaders: ["style-loader", "css-loader", "sass-loader"]
+            }
         ],
     },
 

@@ -36,20 +36,11 @@ const Cell = (props) => {
         }
         return <span style={{color: getColor(value)}}>{value}</span>
     };
-    const getStyle = (value) => {
-        if (value === null || value === 9 || boomed) {
-            return {
-                backgroundColor: "#888",
-            }
-        }
-        return {}
-    };
     return (
         <div
             onClick={value ? () => {} : props.onClick}
             onDoubleClick={value ? props.onDoubleClick : () => {}}
-            className="cell"
-            style={getStyle(value)}
+            className={`cell ${(value === null || value === 9 || boomed) ? 'cell__covered' : ''}`}
             onContextMenu={props.onRightClick}
         >
             {getDisplayValue(value)}

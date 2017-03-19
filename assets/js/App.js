@@ -89,43 +89,46 @@ class App extends React.Component {
     render() {
         if (this.state.gameState.length === 0) {
             return (
-                <div>
-                    Number Of Mines:
+                <div className="app-container">
+                    <div className="input-group">
+                        <span className="input-label">Number Of Mines:</span>
+                        <input
+                            type="text"
+                            value={this.state.numOfMines}
+                            onChange={(e) => {
+                                this.setState({numOfMines: e.target.value})
+                            }}
+                        />
+                    </div>
+                    <div className="input-group">
+                        <span className="input-label">Number Of Rows:</span>
+                        <input
+                            type="text"
+                            value={this.state.x}
+                            onChange={(e) => {
+                                this.setState({x: e.target.value})
+                            }}
+                        />
+                    </div>
+                    <div className="input-group">
+                        <span className="input-label">Number Of Columns:</span>
+                        <input
+                            type="text"
+                            value={this.state.y}
+                            onChange={(e) => {
+                                this.setState({y: e.target.value})
+                            }}
+                        />
+                    </div>
                     <br/>
-                    <input
-                        type="text"
-                        value={this.state.numOfMines}
-                        onChange={(e) => {
-                            this.setState({numOfMines: e.target.value})
-                        }}
-                    />
-                    <br/>
-                    Rows:
-                    <br/>
-                    <input
-                        type="text"
-                        value={this.state.x}
-                        onChange={(e) => {
-                            this.setState({x: e.target.value})
-                        }}
-                    />
-                    <br/>
-                    Cols:
-                    <br/>
-                    <input
-                        type="text"
-                        value={this.state.y}
-                        onChange={(e) => {
-                            this.setState({y: e.target.value})
-                        }}
-                    />
-                    <br/>
-                    <a className="button" onClick={this.newGame}>Start New Game</a>
+                    <div>
+                        <a className="button button__start" onClick={this.newGame}>Start</a>
+                    </div>
                 </div>
             )
         }
         return (
-            <div>
+            <div className="app-container">
                 <GameBoard
                     setGameState={this.setGameState}
                     {...this.state}
