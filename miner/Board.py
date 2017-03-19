@@ -65,16 +65,16 @@ class Board(object):
         """
         if self.win or self.lost:
             return False
-        valid_action = None
+        action_is_valid = None
         if t == CLICK:
-            valid_action = self._apply_click(x, y)
+            action_is_valid = self._apply_click(x, y)
         if t == DOUBLE_CLICK:
-            valid_action = self._apply_double_click(x, y)
+            action_is_valid = self._apply_double_click(x, y)
         if t == FLAG:
-            valid_action = self._apply_flag(x, y)
+            action_is_valid = self._apply_flag(x, y)
         if self.state == self.board:
             self.win = True
-        return valid_action
+        return action_is_valid
 
     def plant(self, num_of_mines, seed=None):
         """
@@ -93,7 +93,7 @@ class Board(object):
 
     def mark(self):
         """
-        Mark the current board
+        Mark the number of adjacent mines of each cell.
         :return: None
         """
         for (x, y) in self.coordinates:
@@ -187,4 +187,4 @@ class Board(object):
             a, b = x + i, y + j
             if (a, b) in self.coordinates:
                 adjacent_coordinates.add((a, b))
-        return list(adjacent_coordinates)
+        return adjacent_coordinates

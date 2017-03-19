@@ -4,6 +4,12 @@ from miner.models import Game
 
 
 def require_post_and_json(view_func):
+    """
+    Make sure the request method is POST and the body is json.
+    Set `request.json` to the pared json body.
+    :param view_func: view function to wrap
+    :return: Wrapped view function
+    """
     def _wrapped_view_func(request, *args, **kwargs):
         if not request.method == 'POST':
             return JsonResponse(status=405, data={"error": "Method not allowed. Please use POST to create game"})
@@ -19,6 +25,11 @@ def require_post_and_json(view_func):
 
 
 def with_game(view_func):
+    """
+    Make sure game with pk exists, and set `request.game` to the game instance.
+    :param view_func: view function to wrap
+    :return: Wrapped view function
+    """
     def _wrapped_view_func(request, pk, *args, **kwargs):
         try:
             game = Game.objects.get(pk=pk)
