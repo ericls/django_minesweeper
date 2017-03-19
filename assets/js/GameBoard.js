@@ -24,12 +24,7 @@ const GameBoard = (props) => {
             contentType: "application/json",
         })
         .done((data) => {
-            setGameState({
-                win: data.win,
-                lost: data.lost,
-                gameState: data.state,
-                minesLeft: data.minesLeft,
-            });
+            setGameState(Object.assign({}, data, {gameState: data.state}));
         })
         .catch((err) => {console.log(err)});
     };
@@ -43,12 +38,7 @@ const GameBoard = (props) => {
             contentType: "application/json",
         })
         .done((data) => {
-            setGameState({
-                win: data.win,
-                lost: data.lost,
-                gameState: data.state,
-                minesLeft: data.minesLeft,
-            });
+            setGameState(Object.assign({}, data, {gameState: data.state}));
         })
         .catch((err) => {console.log(err)});
     };
@@ -77,9 +67,9 @@ const GameBoard = (props) => {
                         const location = [x, y];
                         return (
                             <Cell
-                                onRightClick={onClickLocation(x, y)}
-                                onClick={onClickLocation(x, y)}
-                                onDoubleClick={onDoubleClickLocation(x, y)}
+                                onRightClick={(!win && !lost) && onClickLocation(x, y)}
+                                onClick={(!win && !lost) && onClickLocation(x, y)}
+                                onDoubleClick={(!win && !lost) && onDoubleClickLocation(x, y)}
                                 key={location}
                                 value={item}
                                 location={[x, y]}

@@ -38,7 +38,7 @@ const Cell = (props) => {
     };
     return (
         <div
-            onClick={value ? () => {} : props.onClick}
+            onClick={value !== null ? () => {} : props.onClick}
             onDoubleClick={value ? props.onDoubleClick : () => {}}
             className={`cell ${(value === null || value === 9 || boomed) ? 'cell__covered' : ''}`}
             onContextMenu={props.onRightClick}
@@ -54,9 +54,18 @@ Cell.propTypes = {
         React.PropTypes.number,
         React.PropTypes.bool
     ]),
-    onClick: React.PropTypes.func,
-    onRightClick: React.PropTypes.func,
-    onDoubleClick: React.PropTypes.func,
+    onClick: React.PropTypes.oneOfType([
+        React.PropTypes.func,
+        React.PropTypes.bool
+    ]),
+    onRightClick: React.PropTypes.oneOfType([
+        React.PropTypes.func,
+        React.PropTypes.bool
+    ]),
+    onDoubleClick: React.PropTypes.oneOfType([
+        React.PropTypes.func,
+        React.PropTypes.bool
+    ]),
     boomed: React.PropTypes.bool,
 };
 
