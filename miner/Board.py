@@ -70,7 +70,7 @@ class Board(object):
         :return: (action_is_valid, new_state)
         """
         if self.win or self.lost:
-            return False
+            return False, self.state
         action_is_valid = None
         if t == CLICK:
             action_is_valid = self._apply_click(x, y)
