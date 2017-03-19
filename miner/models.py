@@ -1,7 +1,9 @@
 import json
-import copy
-from django.db import models
+import logging
+from django.db import models, transaction, IntegrityError
 from miner.Board import Board, CLICK, DOUBLE_CLICK, FLAG
+
+logger = logging.getLogger(__name__)
 
 
 class Game(models.Model):
@@ -11,6 +13,7 @@ class Game(models.Model):
     """
 
     board = models.TextField()
+    state = models.TextField(blank=True, null=True)
 
     def apply_action(self, action_type, x, y):
         """
@@ -19,23 +22,34 @@ class Game(models.Model):
         :param action_type: CLICK | DOUBLE_CLICK | FLAG
         :param x: coordinate X
         :param y: coordinate Y
-        :return: None
+        :return: updated game instance
         """
         board = self._current_board
-        current_state = copy.deepcopy(board.state)
-        board.apply_action(action_type, x, y)
-        if not board.state == current_state:
-            GameAction.objects.create(game_id=self.id, action_type=action_type, x=x, y=y)
-        return
+        valid, new_state = board.apply_action(action_type, x, y)
+        if valid:
+            try:
+                with transaction.atomic():
+                    GameAction.objects.create(game_id=self.id, action_type=action_type, x=x, y=y)
+                    self.state = json.dumps(new_state)
+                    self.save()
+            except IntegrityError as e:
+                logger.exception(e)
+        return self
 
     def go_back(self):
         """
         Remove the latest applied action from the game.
-        :return: None
+        :return: updated game instance. If transaction failed, return the current instance
         """
         last_action = self.actions.order_by('id').last()
         if last_action:
-            last_action.delete()
+            try:
+                with transaction.atomic():
+                    last_action.delete()
+                    return self.sync_state()
+            except IntegrityError as e:
+                logger.exception(e)
+                return self
 
     @property
     def latest_state(self):
@@ -52,19 +66,26 @@ class Game(models.Model):
 
     def sync_state(self):
         """
-        Synchronize state by applying all actions to the initial board
+        Synchronize state by applying all saved actions to the initial board in order
+        :return: Updated game instance
         """
-        pass
+        board = Board(json.loads(self.board))
+        for action in self.actions.all().order_by('id'):
+            board.apply_action(action.action_type, action.x, action.y)
+        self.state = json.dumps(board.state)
+        self.save()
+        return self
 
     @property
     def _current_board(self):
         """
         :return: A Board instance representing the current game with all saved actions applied.
         """
-        actions = self.actions.order_by('id').all()
-        board = Board(json.loads(self.board))
-        for action in actions:
-            board.apply_action(action.action_type, action.x, action.y)
+        if not self.state:
+            initial_state = None
+        else:
+            initial_state = json.loads(self.state)
+        board = Board(json.loads(self.board), initial_state=initial_state)
         return board
 
 

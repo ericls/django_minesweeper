@@ -52,17 +52,17 @@ def apply_action(request):
             status=400,
             data={"error": "invalid input json"}
         )
-    request.game.apply_action(action_type, x, y)
+    game = request.game.apply_action(action_type, x, y)
     return JsonResponse(
         status=200,
-        data=request.game.latest_state
+        data=game.latest_state
     )
 
 
 @with_game
 def go_back(request):
-    request.game.go_back()
+    game = request.game.go_back()
     return JsonResponse(
         status=200,
-        data=request.game.latest_state
+        data=game.latest_state
     )
