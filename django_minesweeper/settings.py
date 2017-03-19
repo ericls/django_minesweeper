@@ -139,3 +139,8 @@ CHANNEL_LAYERS = {
         "ROUTING": "django_minesweeper.routing.channel_routing",
     },
 }
+
+try:
+    from django_minesweeper.production_settings import *
+except ImportError as e:
+    pass

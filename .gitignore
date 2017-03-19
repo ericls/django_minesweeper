@@ -100,3 +100,5 @@ node_modules/
 assets/bundles
 
 webpack-stats.json
+
+django_minesweeper/production_settings.py
